@@ -5,6 +5,11 @@
 	    android:dialogTitle="@string/activation_msg" 
 	    android:key="activationMsg">
 	    
-	</EditTextPreference>    
+	</EditTextPreference> 
+	<CheckBoxPreference 
+	    android:title="@string/vibration" 
+	    android:dialogTitle="@string/vibration"
+	    android:key="vibration"
+	    />   
 
 </PreferenceScreen>

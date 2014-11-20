@@ -13,7 +13,7 @@ public class WIMCPPreferences extends PreferenceActivity{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		addPreferencesFromResource(R.layout.main_layout);
+		addPreferencesFromResource(R.xml.main_preferences);
 		
 	}
 	
