@@ -27,6 +27,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -40,6 +41,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.caribelabs.whereismycellphone.R;
+import com.caribelabs.whereismycellphone.utils.GenericServiceAsyncTask;
+import com.caribelabs.whereismycellphone.utils.GenericServiceAsyncTask.WSResponseFormat;
+import com.caribelabs.whereismycellphone.utils.RequestCallBack;
 
 public class LoginActivity extends Activity implements OnClickListener{
 	
@@ -86,8 +90,6 @@ public class LoginActivity extends Activity implements OnClickListener{
              startActivity(mainActivity);
 		}
 		
-		 
-		
 	}
 	
 	
@@ -101,6 +103,8 @@ public class LoginActivity extends Activity implements OnClickListener{
 	
 	private void register(){
 		Log.i(TAG,"I'm going to call the Register Activity... ");
+		Intent i = new Intent(this, RegisterActivity.class);
+		startActivityForResult(i, 10);
 	}
 
 
@@ -110,7 +114,49 @@ public class LoginActivity extends Activity implements OnClickListener{
 		switch(v.getId()){
 			case R.id.btnLogin:
 				validateForm();
-				new LoginOpertation().execute();
+				//new LoginOpertation().execute();
+				ArrayList<BasicNameValuePair> params = new  ArrayList<BasicNameValuePair>(3);
+				params.add(new BasicNameValuePair("username", "" + etUsername.getText()));
+				params.add(new BasicNameValuePair("password", "" + etPassword.getText()));
+				new GenericServiceAsyncTask("users/login", "POST", WSResponseFormat.XML , getApplicationContext() , 
+						new RequestCallBack() {
+							
+						@Override
+						public void onCompleted(boolean result, Object response) {
+							Document xmldoc = (Document) response;
+							Log.i("XML RESPONSE", "" + response);
+							
+
+							if (result) {
+								
+								NodeList list = xmldoc.getElementsByTagName("item");
+								
+								 if(list.getLength() > 0){
+
+					            	 NodeList nodeList = list.item(0).getChildNodes();
+					            	 for(int i = 0; i < nodeList.getLength() ; i++ ){
+					            		 Node node = nodeList.item(i);
+					            		 Log.i(TAG, node.getNodeName() + " : " + node.getTextContent()); 
+										 SharedPreferences prefs = getApplicationContext().getSharedPreferences(
+													MainActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+										 Editor editPrefs = prefs.edit();
+										 editPrefs.putString("user_" + node.getNodeName()  , node.getTextContent());
+									     editPrefs.commit();
+					            		 
+					            	 }
+								}
+
+								
+								mainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+								startActivity(mainActivity);
+							}
+							{
+								tvLoginError.setText("Invalid User or Password");
+							}
+
+							}
+						}).execute(params);
+				
 				break;
 			
 			case R.id.btnLinkToRegisterScreen:
@@ -160,11 +206,14 @@ public class LoginActivity extends Activity implements OnClickListener{
 	            	 Log.e(TAG, "Got Logged : " + list.item(0).getChildNodes()) ;
 	            	 //registration= true;
 	            	 
-	            	 Editor prefsEditor = mPrefs.edit();
+	            	 SharedPreferences prefs = getApplicationContext().getSharedPreferences(
+								MainActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+					 Editor editPrefs = prefs.edit();
 
 	            	 Log.i(TAG,result);
 	            	 NodeList nodeList = list.item(0).getChildNodes();
-	            	 for(int i = 0; i < nodeList.getLength() ; i++ ){
+	            	 Editor prefsEditor = prefs.edit() ;
+					for(int i = 0; i < nodeList.getLength() ; i++ ){
 	            		 Node node = nodeList.item(i);
 	            		 Log.i(TAG, node.getNodeName() + " : " + node.getTextContent()); 
 	            		 prefsEditor.putString("user_" +node.getNodeName()  , node.getTextContent());   
@@ -228,6 +277,8 @@ public class LoginActivity extends Activity implements OnClickListener{
 			// TODO Auto-generated method stub
 			super.onProgressUpdate(values);
 		}
+		
+		
 		
 	}
 	

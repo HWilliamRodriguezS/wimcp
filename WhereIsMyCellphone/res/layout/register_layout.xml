@@ -16,11 +16,13 @@
             android:text="REGISTER"
             android:textSize="25dip"
             android:textStyle="bold" />
+       
         <!--  Name Label -->
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="Full Name" />
+        
         <!--  Name TextField -->
         <EditText
             android:id="@+id/registerName"
@@ -32,6 +34,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="Email" />
+       
         <!--  Email TextField -->
         <EditText
             android:id="@+id/registerEmail"
@@ -44,15 +47,31 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="15dip"
             android:text="Password" />
+        
         <!--  Password TextField -->
         <EditText
             android:id="@+id/registerPassword"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:password="true" />
+        
+        
+        <!-- Rewrite Password Label -->
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dip"
+            android:text="Rewrite Password" />
+        
+        <!-- Rewrite Password TextField -->
+        <EditText
+            android:id="@+id/repeatRegisterPassword"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:password="true" />
          
         <!--  Error message -->
-        <TextView android:id="@+id/register_error"
+        <TextView android:id="@+id/registerError"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:textColor="#e30000"

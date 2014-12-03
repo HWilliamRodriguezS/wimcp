@@ -41,8 +41,8 @@ public class MainActivity extends Activity {
 		if (checkPlayServices()) {
 			gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
 			regid = getRegistrationId(getApplicationContext());
-			if (!regid.isEmpty()) {
-				button.setEnabled(false);
+			if (regid.isEmpty()) {
+				//button.setEnabled(false);
 			} else {
 				button.setEnabled(true);
 			}

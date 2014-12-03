@@ -40,6 +40,16 @@
             </intent-filter>
         </activity>
         
+         <activity
+            android:name="com.caribelabs.whereismycellphone.controllers.RegisterActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.REGISTER_ACTIVITY" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
         <activity
             android:name="com.caribelabs.whereismycellphone.controllers.MainActivity"
             android:label="@string/app_name" >
@@ -78,7 +88,7 @@
 
         <service android:name="com.caribelabs.whereismycellphone.controllers.GcmIntentService" />
         
-           <activity
+        <activity
             android:name="com.caribelabs.whereismycellphone.controllers.WIMCPPreferences"
             android:label="@string/settings" >
             <intent-filter>

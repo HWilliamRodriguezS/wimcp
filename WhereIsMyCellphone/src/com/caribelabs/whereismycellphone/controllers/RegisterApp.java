@@ -44,6 +44,8 @@ public class RegisterApp extends AsyncTask<Void, Void, String> {
 	private int appVersion;
 	private Device device;
 	private boolean registration;
+	private SharedPreferences prefs;
+	private String  user_id;
 
 	public RegisterApp(Context ctx, GoogleCloudMessaging gcm, int appVersion) {
 		this.ctx = ctx;
@@ -68,20 +70,31 @@ public class RegisterApp extends AsyncTask<Void, Void, String> {
 				gcm = GoogleCloudMessaging.getInstance(ctx);
 			}
 			regid = gcm.register(SENDER_ID);
-			msg = "Device registered, registration ID=" + regid;
-			device.setRegistration_id(regid);
-			// You should send the registration ID to your server over HTTP,
-			// so it can use GCM/HTTP or CCS to send messages to your app.
-			// The request to your server should be authenticated if your app
-			// is using accounts.
-			sendRegistrationIdToBackend();
-
-			// For this demo: we don't need to send it because the device
-			// will send upstream messages to a server that echo back the
-			// message using the 'from' address in the message.
-
-			// Persist the regID - no need to register again.
-			storeRegistrationId(ctx, regid);
+			
+			
+			if(regid != null){
+				msg = "Device registered, registration ID=" + regid;
+				device.setRegistration_id(regid);
+				prefs = ctx.getSharedPreferences(
+						MainActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+				user_id = prefs.getString("user_id", "0");
+				//prefs.getString("", defValue)
+				// You should send the registration ID to your server over HTTP,
+				// so it can use GCM/HTTP or CCS to send messages to your app.
+				// The request to your server should be authenticated if your app
+				// is using accounts.
+				sendRegistrationIdToBackend();
+	
+				// For this demo: we don't need to send it because the device
+				// will send upstream messages to a server that echo back the
+				// message using the 'from' address in the message.
+	
+				// Persist the regID - no need to register again.
+				storeRegistrationId(ctx, regid);
+			}else{
+				msg="Error Trying to register the device, try again later.";
+			}
+			
 		} catch (IOException ex) {
 			msg = "Error :" + ex.getMessage();
 			// If there is an error, don't just keep trying to register.
@@ -92,7 +105,7 @@ public class RegisterApp extends AsyncTask<Void, Void, String> {
 	}
 
 	private void storeRegistrationId(Context ctx, String regid) {
-		final SharedPreferences prefs = ctx.getSharedPreferences(
+		SharedPreferences prefs = ctx.getSharedPreferences(
 				MainActivity.class.getSimpleName(), Context.MODE_PRIVATE);
 		Log.i(TAG, "Saving regId on app version " + appVersion);
 		SharedPreferences.Editor editor = prefs.edit();
@@ -108,16 +121,19 @@ public class RegisterApp extends AsyncTask<Void, Void, String> {
 		
 		// Create a new HttpClient and Post Header
 	    HttpClient httpclient = new DefaultHttpClient();
-	    HttpPost httppost = new HttpPost("http://www.nmtecnologies.com/wimcp/devices/registrer");
+	    HttpPost httppost = new HttpPost("http://www.nmtecnologies.com/wimcp/devices/register");
 	    
 	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder;
         InputSource is;
-
+        
+        
+        
 	    try {
 	        // Add your data
 	    	
 	    	//log.d("",);
+	    	Log.d("User Storage ID ", ":" + user_id);
 	        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(3);
 	        nameValuePairs.add(new BasicNameValuePair("registration_id", "" + regid));
 	        nameValuePairs.add(new BasicNameValuePair("android_id", "" +regid));
@@ -132,11 +148,13 @@ public class RegisterApp extends AsyncTask<Void, Void, String> {
 	       
 	        
 	        //reading the xml
+	        String responseString = convertInputStreamToString(inputStream);
             builder = factory.newDocumentBuilder();
-            is = new InputSource(new StringReader(convertInputStreamToString(inputStream)));
+            is = new InputSource(new StringReader(responseString));
             Document doc = builder.parse(is);
+            Log.i("WS Response : " ,"" + responseString);
             NodeList list = doc.getElementsByTagName("device_id");
-            
+
             if(list.getLength() > 0){
             	 result = list.item(0).getTextContent();
             	 registration= true;
@@ -166,45 +184,6 @@ public class RegisterApp extends AsyncTask<Void, Void, String> {
 	    	
 	    } 
 				
-		/* GET REQUEST
-		 URI url = null;
-		try {
-			url = new URI(
-					"http://www.nmtecnologies.com/wimcp/device/registerDevice?regId="
-							+ regid);
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		HttpClient httpclient = new DefaultHttpClient();
-		HttpGet request = new HttpGet();
-		request.setURI(url);
-		
-		HttpPost httpPost = new HttpPost();
- 
-		 
-		try {
-			String result = null;
-			InputStream inputStream = null;
-			HttpResponse httpResponse = httpclient.execute(request);
-			inputStream = httpResponse.getEntity().getContent();
-			
-			// convert inputstream to string
-            if(inputStream != null)
-                result = convertInputStreamToString(inputStream);
-            else
-                result = "Did not work!";
-			
-            Log.i(TAG,result);
-			
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
 	}
 	
 	 // convert inputstream to String
@@ -225,15 +204,10 @@ public class RegisterApp extends AsyncTask<Void, Void, String> {
 		super.onPostExecute(result);
 		
 		if(registration){
-			Toast.makeText(ctx,
-					"Registration Completed. Now you can see the notifications",
-					Toast.LENGTH_SHORT).show();
+			Toast.makeText(ctx,"Registration Completed. Now you can see the notifications",Toast.LENGTH_SHORT).show();
 			Log.v(TAG, result);
 		}else{
-			Toast.makeText(ctx,
-					"There was a problem trying to register your device.",
-					Toast.LENGTH_SHORT).show();
-			
+			Toast.makeText(ctx,"There was a problem trying to register your device.",Toast.LENGTH_SHORT).show();
 		}
 		Log.v(TAG, result);
 	}

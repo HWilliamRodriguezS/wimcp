@@ -10,6 +10,10 @@
 	    android:title="@string/vibration" 
 	    android:dialogTitle="@string/vibration"
 	    android:key="vibration"
-	    />   
+	    /> 
+	    
+	 <RingtonePreference 
+	     android:title="@string/ringtone"
+	     android:key="ringtone" />  
 
 </PreferenceScreen>
